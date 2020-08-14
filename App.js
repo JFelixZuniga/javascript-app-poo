@@ -19,19 +19,39 @@ class UI {
           <strong>Product Name</strong>: ${product.name}
           <strong>Product Price</strong>: ${product.price}
           <strong>Product Year</strong>: ${product.year}
+          <a href="#" class="btn btn-danger" name="delete">Delete</a>
         </div>
       </div>
     `;
-    //ahora insertamos los elemtos en el html
+    //ahora insertamos los elemtos en el html, a través de un elemento hijo (appenChild)
     productList.appendChild(element)
+    //Le agregamos el método resetForm para resetear los valores
+    //Opción 1: this.resetForm();
   }
 
-  deleteProduct(){
-
+  resetForm(){
+    document.getElementById('product-form').reset();
   }
 
-  showMessage(){
-     
+  deleteProduct(element){
+    if(element.name === 'delete'){
+      element.parentElement.parentElement.parentElement.remove();
+      this.showMessage('Product Deleted Successfully', 'danger')
+    }
+  }
+
+  showMessage(message, cssClass){
+    const div = document.createElement('div');
+    div.className = `alert alert-${cssClass} mt-4`
+    div.appendChild(document.createTextNode(message));
+    //Mostrando en el DOM
+    const container = document.querySelector('.container');
+    const app = document.querySelector('#App');
+    //la linea siguiente se lee así:  insertamos dentro del contenedor, pero antes de un elemento otro elemento, es decir, dentro de container voy a insertar el div, el cual estará antes del elemento app
+    container.insertBefore(div, app);
+    setTimeout  (function () {
+      document.querySelector('.alert').remove();
+    }, 3000);
   }
 }
 
@@ -44,9 +64,25 @@ document.getElementById('product-form')
     const year = document.getElementById('year').value;
 
     const product = new Product(name, price, year);
-
+    //Para que se visualice el nuevo producto, creamos un nuevo objeto desde la interfaz
     const ui = new UI();
+
+    if(name === '' || price === '' || year === ''){
+      return ui.showMessage('Complete Fields Please', 'info');
+    }
+    ui.addProduct(product)
+    //Opción 2: acá llamamos al método para resetear los valores
+    ui.resetForm();
+
+    ui.showMessage('Product Add Successfully', 'success');
 
     //cancelamos el evento por defecto de refrescar la página
     e.preventDefault();
 });
+
+//Capturamos el evento para eiiminar producto
+document.getElementById('product-list')
+  .addEventListener('click', e => {
+    const ui = new UI();
+    ui.deleteProduct(e.target);
+  })
